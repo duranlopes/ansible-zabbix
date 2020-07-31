@@ -1,0 +1,10 @@
+---
+- name: Set timezone in php
+  lineinfile:
+    dest:  /etc/zabbix/apache.conf
+    state: present
+    regexp: '# php_value date.timezone Europe/Riga'
+    line: 'php_value date.timezone America/Sao_Paulo'
+    backrefs: yes
+  notify:
+  - restart apache2

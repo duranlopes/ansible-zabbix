@@ -1,0 +1,12 @@
+---
+- name: Configure timezone
+  include: common.yml
+  
+- name: Install Zabbix Packages
+  include: zabbix.yml
+
+- name: Install and Configure Mysql
+  include: mysql.yml
+
+- name: Configure php
+  include: php.yml

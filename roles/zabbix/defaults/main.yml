@@ -1,0 +1,10 @@
+---
+mysql_root_password:      ''
+zabbix_database_host:     localhost
+zabbix_database_port:     3306
+zabbix_database_username: zabbix
+zabbix_database_password: zabbixpassword
+zabbix_database_name:     zabbix
+
+zabbix_package: https://repo.zabbix.com/zabbix/5.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.0-1+bionic_all.deb
+temp_folder: /tmp

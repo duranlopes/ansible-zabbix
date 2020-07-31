@@ -1,0 +1,27 @@
+---
+- name: Download zabbix deb
+  get_url:
+    url: "{{ zabbix_package }}"
+    dest: "{{ temp_folder }}"
+    mode: +x
+  register: get_package
+
+- name: Install zabbix deb
+  apt:
+    deb: "{{ get_package.dest }}"
+    state: present
+
+- name: Update repositories cache 
+  apt:
+    name: '*'
+    update_cache: yes
+
+- name: Install zabbix packages 
+  apt:
+    name: [zabbix-server-mysql, zabbix-frontend-php, zabbix-apache-conf, zabbix-agent]
+    state: latest
+
+- name: Start Zabbix server
+  service:
+    name: zabbix-server
+    state: started

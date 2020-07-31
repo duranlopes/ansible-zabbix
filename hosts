@@ -1,0 +1,7 @@
+[ubuntu]
+192.168.25.117
+
+[ubuntu:vars]
+ansible_ssh_user=''
+ansible_ssh_pass=''
+ansible_become_pass=''

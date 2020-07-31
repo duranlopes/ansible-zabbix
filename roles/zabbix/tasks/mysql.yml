@@ -1,0 +1,75 @@
+---
+- name: APT | Install mysql Requirements
+  apt: 
+    name: ['software-properties-common', 'mysql-server', 'dirmngr', 'python-mysqldb', 'python3-mysqldb', 'python-apt', 'python3-apt']
+    state: latest
+  tags: maria_requirements
+
+- name: APT | Update Cache
+  apt: 
+    update_cache: yes
+
+- name: APT | Update System
+  apt: 
+    name: "*" 
+    state: latest
+
+- name: Start MySQL and enable on boot
+  service:
+    name: mysql
+    state: started
+    enabled: yes
+
+- name: Create MySQL database
+  mysql_db: 
+    login_user: root 
+    login_password: "{{ mysql_root_password }}"
+    name: "{{ zabbix_database_name }}"
+    state: present 
+    encoding: utf8 
+    collation: utf8_bin 
+    login_host: "{{ zabbix_database_host }}"
+    login_port: "{{ zabbix_database_port }}"
+  register: new_zabbix_mysql_database
+  tags:
+    - zabbix-server
+    - mysql
+
+- name: Create MySQL user
+  mysql_user: 
+    login_user: root 
+    login_password: "{{ mysql_root_password }}"
+    name: "{{ zabbix_database_username }}"
+    password: "{{ zabbix_database_password }}" 
+    state: present 
+    login_host: "{{ zabbix_database_host }}"
+    login_port: "{{ zabbix_database_port }}"
+  tags:
+    - zabbix-server
+    - mysql
+    
+- name: Grant permissions for MySQL user to database
+  mysql_user: 
+    login_user: root 
+    login_password: "{{ mysql_root_password }}" 
+    name: "{{ zabbix_database_username }}" 
+    priv: "{{ zabbix_database_name}}.*:ALL" 
+    login_host: "{{ zabbix_database_host }}" 
+    login_port: "{{ zabbix_database_port }}"
+  tags:
+    - zabbix-server
+    - mysql
+    
+- name: Import initial schema zabbix database
+  shell: "zcat /usr/share/doc/zabbix-server-mysql*/create.sql.gz | mysql -h {{ zabbix_database_host }} -u{{ zabbix_database_username }} -p{{ zabbix_database_password }} {{ zabbix_database_name }}"
+  register: result_schema
+
+- name: Set dbpassword in zabbix conf
+  lineinfile:
+    dest:  /etc/zabbix/zabbix_server.conf
+    state: present
+    regexp: '# DBPassword='
+    line: 'DBPassword={{ zabbix_database_password }}'
+    backrefs: yes
+  notify:
+  - restart zabbix-server

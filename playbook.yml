@@ -1,0 +1,6 @@
+---
+- name: Install Zabbix 5.0 Server
+  hosts: ubuntu
+  become: yes
+  roles:
+    - zabbix
